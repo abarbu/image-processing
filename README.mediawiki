@@ -1,15 +1,11 @@
-This page is maintained in the package's
-[[https://github.com/abarbu/image-processing|github repository]].
-
 This is a Chicken Scheme egg with various image processing
 utilities. It will one day be documented.
 
 === License ===
 
-   Written by the
-   [[Center for the Computational Study of Cognition, Control, and Perception|http://upplysingaoflun.ecn.purdue.edu/~qobi/cccp/]].
+Written by the [[Center for the Computational Study of Cognition, Control, and Perception|http://upplysingaoflun.ecn.purdue.edu/~qobi/cccp/]].
 
-   Maintainer: Andrei Barbu, andrei@0xab.com
+Maintainer: Andrei Barbu, andrei@0xab.com
 
    Copyright 1993-1995 University of Toronto. All rights reserved.
    Copyright 1996 Technion. All rights reserved.
