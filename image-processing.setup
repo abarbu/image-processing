@@ -1,0 +1,10 @@
+;;;  -*- Hen -*-
+
+(use setup-helper-mod)
+
+(verify-extension-name "image-processing")
+
+(setup-shared-extension-module 'image-processing (extension-version "1.0")
+  #:inline? #t #:types? #t
+  #:compile-options '(-O3 -d2)
+  #:install-options '())
