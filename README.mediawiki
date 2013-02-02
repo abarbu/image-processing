@@ -3,7 +3,7 @@ utilities. It will one day be documented.
 
 === License ===
 
-Written by the [[Center for the Computational Study of Cognition, Control, and Perception|http://upplysingaoflun.ecn.purdue.edu/~qobi/cccp/]].
+Written by the [[http://upplysingaoflun.ecn.purdue.edu/~qobi/cccp/|Center for the Computational Study of Cognition, Control, and Perception]].
 
 Maintainer: Andrei Barbu, andrei@0xab.com
 
