@@ -1,6 +1,6 @@
 (module image-processing *
 (import chicken scheme extras)
-(use traversal define-structure scheme2c-compatibility linear-algebra format)
+(use traversal define-structure scheme2c-compatibility linear-algebra format miscmacros)
 
 ;;; Images
 
@@ -607,7 +607,7 @@
    (every-vector (lambda (row) (every-vector zero? row)) (pgm-grey pnm)))
   ((pbm? pnm)
    (not
-    (some-vector (lambda (row) (some-vector identity row)) (pbm-bitmap pnm))))
+    (some-vector (lambda (row) (some-vector (lambda (a) a) row)) (pbm-bitmap pnm))))
   (else (error "Argument to EMPTY-PNM? is not a PNM"))))
 
 (define (pbm-ascii pbm) (make-pbm #f (pbm-bitmap pbm)))
@@ -843,7 +843,7 @@
  (unless (pbm? pbm) (fuck-up))
  (let* ((width (pnm-width pbm))
 	(height (pnm-height pbm))
-	(m (map-vector (lambda (row) (map-vector identity row))
+	(m (map-vector (lambda (row) (map-vector (lambda (a) a) row))
 		       (pbm-bitmap pbm)))
 	(i -1)
 	(threshold-squared (sqr threshold)))
@@ -1162,7 +1162,7 @@
 (define (pbm-skeletonize pbm)
  (let ((height (pnm-height pbm)) (width (pnm-width pbm)))
   (let loop ((bitmap (pbm-bitmap pbm)))
-   (let ((new-bitmap (map-vector (lambda (row) (map-vector identity row)) bitmap)))
+   (let ((new-bitmap (map-vector (lambda (row) (map-vector (lambda (a) a) row)) bitmap)))
     (for-each-n
      (lambda (y)
       (for-each-n
@@ -1216,7 +1216,7 @@
 
 (define (pbm-flood pbm point)
  (let ((new-bitmap
-	(map-vector (lambda (row) (map-vector identity row)) (pbm-bitmap pbm)))
+	(map-vector (lambda (row) (map-vector (lambda (a) a) row)) (pbm-bitmap pbm)))
        (height (pnm-height pbm))
        (width (pnm-width pbm)))
   (let loop ((point point))
