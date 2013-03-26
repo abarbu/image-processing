@@ -1,6 +1,7 @@
 (module image-processing *
 (import chicken scheme extras)
-(use traversal define-structure scheme2c-compatibility linear-algebra format miscmacros)
+(use traversal define-structure scheme2c-compatibility
+     linear-algebra format miscmacros imlib2 gsl files)
 
 ;;; Images
 
@@ -1452,4 +1453,28 @@
 (define (pgm-variance image)
  (let ((hist (find-histogram (pgm-grey image) (pgm-maxval image))))
   (histogram-variance hist (histogram-mean hist 0) 0)))
+
+(define (show i)
+ (define (with-temporary-file filename f)
+  (f (create-temporary-file (if (has-extension? filename)
+                                (extension filename)
+                                ""))))
+ ;; TODO should use a temporary file
+ (cond ((or (ppm? i) (pgm? i) (pbm? i))
+        (with-temporary-file
+         (cond ((ppm? i) "/tmp/show.ppm")
+               ((pgm? i) "/tmp/show.pgm")
+               ((pbm? i) "/tmp/show.pbm")
+               (else (fuck-up)))
+         (lambda (filename)
+          (write-pnm i filename)
+          (system (string-append "(feh --force-aliasing " filename "; rm " filename ")&")))))
+       ;; should be imlib?
+       ((image? i)
+	(with-temporary-file
+         "/tmp/show.png"
+         (lambda (filename)
+          (image-save i filename)
+          (system (string-append "(feh --force-aliasing " filename "; rm " filename ")&")))))
+       (else (error "don't know how to show" i))))
 )

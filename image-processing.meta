@@ -9,8 +9,8 @@
   (setup-helper "1.5.2")
   (miscmacros "2.91")
   (check-errors "1.12.0")
-  define-structure traversal format
-  scheme2c-compatibility linear-algebra)
+  define-structure traversal format files
+  scheme2c-compatibility linear-algebra imlib2 gsl)
  (test-depends test)
  (files "image-processing.meta" 
         "image-processing.release-info"
