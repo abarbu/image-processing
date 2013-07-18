@@ -10,7 +10,7 @@
   (miscmacros "2.91")
   (check-errors "1.12.0")
   define-structure traversal format files
-  scheme2c-compatibility linear-algebra imlib2 gsl)
+  scheme2c-compatibility linear-algebra imlib2)
  (test-depends test)
  (files "image-processing.meta" 
         "image-processing.release-info"

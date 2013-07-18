@@ -1,7 +1,7 @@
 (module image-processing *
 (import chicken scheme extras)
 (use traversal define-structure scheme2c-compatibility
-     linear-algebra format miscmacros imlib2 gsl files)
+     linear-algebra format miscmacros imlib2 files)
 
 ;;; Images
 
