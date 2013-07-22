@@ -3,7 +3,7 @@
 ((category misc)
  (author "Purdue team")
  (maintainer "Andrei Barbu")
- (license "GPL")
+ (license "LGPL")
  (synopsis "Image processing utilities")
  (depends
   (setup-helper "1.5.2")
