@@ -7,7 +7,598 @@ This page is maintained in the package's
 [[https://github.com/abarbu/image-processing|github repository]].
 
 This is a Chicken Scheme egg with various image processing
-utilities. It will one day be documented.
+utilities.
+
+Note that a few of these functions call ImageMagick.
+
+=== Color spaces
+
+<constant>*max-red*</constant>
+<constant>*max-green*</constant>
+<constant>*max-blue*</constant>
+<constant>*max-grey*</constant>
+<constant>*max-hue*</constant>
+<constant>*max-saturation*</constant>
+<constant>*max-value*</constant>
+
+These are exposed in case we want to switch to 16-bit grayscale or
+colors.
+
+(rgb->hsv rgb)
+(hsv->rgb hsv)
+(rgb->cd rgb)
+(rgb->cmyk rgb)
+(rgb->uv-hsv c)
+
+Various color space conversions. Colors are vectors of values.
+
+(rgb->xyz c)
+(xyz->rgb c)
+(xyz->l*ab c)
+(l*ab->xyz c)
+(rgb->l*ab c)
+(l*ab->rgb c)
+
+Convert to l*ab. Colors are vectors of values. This is space in which
+Euclidean distance is similar to human perceputal distance. These
+implement a 2 degree observer and the D65 illuminant.
+
+(rgb->html c)
+
+Not really a color space conversion, covert an rgb color to an HTML
+color ''#rrggbb''.
+
+=== Images
+
+(define-structure pbm raw? bitmap)
+(define-structure pgm raw? maxval grey)
+(define-structure ppm raw? maxval red green blue)
+(pnm? m)
+
+Three image formats are supported. PBMs are binary images, PGMs are
+greyscale and PPMs are tri-plane (nominally RGB) images. All planes
+are stored as scheme matrices. Together all of these formats are
+called PNM. This is a standard format that many tools (such browser
+and ImageMagick) can read and write. PNMs can be serialized as either
+raw packed binaries or ascii text files. Note that we are unable to
+read or write raw PBMs.
+
+(image-ref i p)
+
+Index into an PNM image or into a matrix. This is like indexing into a
+matrix except that the arguments are reversed. A ''matrix-ref'' takes
+the row and then the column, image-ref takes a point which is an (x,y)
+coordinate.
+
+(pbm-ascii pbm)
+
+Ensure that the PBM image is in ascii. We are unable to read or write
+raw PBMs.
+
+(pnm-copy pnm)
+
+The resulting image will not share any data with the original.
+
+;;; Creating images
+
+(read-pnm pathname)
+
+Read a PNM. We determine the kind of image (PBM, PGM, PPM see above)
+from the file header.
+
+(write-pnm pnm pathname)
+
+Write a PNM. If don't provide an extension an appropriate one will be
+appended to your pathname.
+
+(pbm-constant width height bit)
+(pgm-constant width height grey)
+(ppm-constant width height red green blue)
+
+Create constant images.
+
+(pbm-left-vertical-stripe width height left)
+
+Create a black vertical stripe on a white image.
+
+(crop-image pnm x y width height)
+
+Crop an image and return a new image of the given size.
+
+(pnm->ppm pnm)
+(pnm->pgm pnm)
+
+Convert any image format to a color or greyscale image
+
+(pbm->pgm pbm)
+(pgm->ppm pgm)
+(pbm->ppm pbm)
+(ppm->pgm ppm)
+
+Various image conversions.
+
+(pgm->pbm pgm threshold)
+(ppm->pbm ppm threshold)
+
+Convert a color or greyscale image to a binary image with the provided
+threshold.
+
+;;; Basic image information
+
+(pnm-width pnm)
+(pnm-height pnm)
+
+Basic image information.
+
+(ppm-hue ppm)
+(ppm-saturation ppm)
+(ppm-value ppm)
+
+Creates a greyscale image representing one of the HSV channels from a
+color image.
+
+(ppm-mean image colour-transform)
+(ppm-covariance image colour-transform)
+(pgm-mean image)
+(pgm-variance image)
+
+Compute the mean or covariance of an image. These take an optional
+colour transform.
+
+;;; Logical and morphological operations
+
+(pbm-and pbm1 pbm2)
+(pbm-or pbm1 pbm2)
+(pbm-not pbm)
+(pbm-xor pbm1 pbm2)
+
+Basic logical operations on binary images.
+
+(pgm-absolute-difference pgm1 pgm2)
+
+Compute the difference between two greyscale images.
+
+(empty-pnm? pnm)
+
+Is this image empty?
+
+(pbm-skeletonize pbm)
+(pbm-bloat pbm n)
+
+Bloat or skeletonize a binary image.
+
+(pbm-flood pbm point)
+
+Floor fill a binary image.
+
+;;; PNM movies
+
+(pnm-movie-frame-pathname pathname i)
+(pnm-movie-length pathname)
+(read-pnm-movie pathname)
+(write-pnm-movie pnm-movie pathname)
+
+A PNM movie is a sequence of PNMs on disk.
+
+;;; Image operations
+
+(overlay-pbm-on-pnm pbm pnm)
+
+The white pixels in the pbm become white in the resulting image.
+
+(pnm-black-window pnm upper-left lower-right)
+(pnm-white-window pnm upper-left lower-right)
+
+Draw white or black windows on an image.
+
+(pbm-ppm-and pbm ppm)
+(pgm-and-pbm pgm pbm)
+
+Black pixels in the PBM become black pixels in the result.
+
+(pnm-shift pnm delta)
+
+Shift an image down and rightward by the give number of pixels.
+
+(pgm-smooth pgm sigma)
+
+Smooth a greyscale image with the given variance.
+
+(pbm-proximity-clusterer pbm threshold)
+
+Cluster white pixels in the binary image with the given distance
+threshold.
+
+(pnm-rotate pnm)
+(pnm-flip pnm)
+
+Rotate (transpose) an image or flip (mirror) an image.
+
+(ppm-burn base mask colour)
+
+Burn the ppm with the given mask and color.
+
+;;; Image pairs
+
+(normal-flow-magnitude pgm1 pgm2 epsilon sigma sensitivity)
+(threshold-normal-flow-magnitude pgm1 pgm2 epsilon sigma threshold)
+
+Compute normalized flow between two pairs of greyscale images.
+
+;;; Thresholding
+
+(flatten-ppm ppm colour-transform)
+
+Returns a single matrix from a tri-plane PPM. This maps
+colour-transform over the image.
+
+(binary-threshold pgm threshold)
+
+Threshold a greyscale image.
+
+;; Optimal Threshold - 
+(find-threshold-otsu pgm)
+(binary-threshold-optimal pgm)
+
+Otsu's Method to find an optional threshold and apply it.
+
+(find-threshold-means pgm)
+(binary-threshold-means pgm)
+
+Method of Successive Means to find an optimal threshold and apply it.
+
+;;; Colour Threshold
+
+(sample-image ppm colour-tx window-centre window-size)
+
+Map colour-tx over an region of a color image.  
+
+(binary-threshold-colour ppm colour-tx point threshold)
+
+Binary threshold a colour image by sampling a region around the given
+point and thresholding all values that are within the given distance
+threshold of the mean color of that region.
+
+(colour-threshold ppm colour-tx mu isigma threshold)
+
+Binary threshold a colour image with the given mean and variance. The
+mahalanobis-distance between each pixel and the given mean and
+variance will be computed and compared to the threshold.
+
+;;; Histogram Equalization
+
+(histogram-equalise pgm)
+
+Equalize a greyscale image.
+
+;;; Adaptive Thresholding
+
+(make-integral-matrix matrix)
+
+Given a matrix compute an integral matrix which can provide the mean
+value of a rectangular region in O(1).
+
+(compute-integral-matrix-mu integral-matrix x y w)
+(compute-integral-matrix-sigma squared-integral-matrix mu x y w)
+
+This computes the mean and variance of a square of size w in the given
+integral matrix.
+
+(compute-adaptive-threshold integral-matrix squared-integral-matrix x y w)
+
+Compute an adaptive threshold on the given integral matrix.
+
+(adaptive-threshold pgm winsize)
+
+Compute an adaptive threshold for a greyscale image with a given
+window size.
+
+(slide-window m f size)
+
+Map f over a matrix passing it square submatrices of the given
+size. At the edges f is passed ''#f''.
+
+(count-pixels a)
+
+Count number of true values in a matrix.
+
+(ppm->label-closest ppm mu1 sigma1 mu2 sigma2 #!optional colour-transform)
+
+Create a binary image from a color image where points are either white
+or black depending on which is closer to the given means and
+variances.
+
+;;; Histogram
+
+(find-histogram pixmap maxval)
+(histogram-mean histogram i)
+(histogram-variance histogram mu i)
+(normalised-histogram histogram val)
+(weighted-histogram histogram)
+(cumulative-histogram histogram)
+(find-between-class-variances omegas mus mu-total)
+
+Compute histograms from a matrix.
+
+;;; Rendering Line Segments
+
+(midpoint l)
+
+Compute the midpoint of a line segment.
+
+(orientation v)
+
+Compute the orientation of a vector.
+
+(line-segment-orientation l)
+
+Compute the orientation of a line segment.
+
+(line-segment->points l)
+(line-segments->points ls)
+(points->line-segments ps)
+
+Convert between points and line semgents.
+
+;;; Points and bounding boxes
+
+(points->pbm-of-size points height width)
+
+Take the list of points and create a binay image of the given size
+where those points are white.
+
+(points-bounding-box points)
+
+Computing a bounding box for a set of points.
+
+(bounding-box-size bb)
+
+Compute the size of a bounding box
+
+(points->points-bounding-box points bb)
+
+Recompute the coordinates of the given points relative to the top-left
+corner of the bounding box.
+
+(points->bounding-box-points points)
+
+Convert points to a list of points on the bounding box of those
+points.
+
+(normalize-to-bounding-box ps)
+(normalize-to-other-bounding-box points ps)
+(points->target-bounding-box points target-bb)
+(points->other-target-bounding-box points ps target-bb)
+
+Normalize the cooredinates of these points to their bounding box. Or
+to the bounding box of the given points.
+
+(bounding-box-bloat bb p)
+
+Bloat a bounding box.
+
+(bounding-box-crop bb image)
+
+Crop a bounding box out of an image.
+
+(pbm->points pbm)
+(points->pbm points height width)
+
+Convert a binary image to a set of points or vice versa.
+
+;;; Quantization
+
+(quantize-coordinate x)
+(quantize-point p)
+(quantize-points ps)
+(quantize-line-segment l)
+(quantize-line-segments ls)
+
+Quantize coordinates, points or line segments.
+
+;;; Ellipses
+
+(define-structure ellipse x0 y0 t0 a b)
+(ellipse-center ellipse)
+(ellipse-area ellipse)
+(ellipse-eccentricity ellipse)
+
+Define and compute basic properties of ellipses.
+
+(radial-distance theta phi)
+
+The radial distance between two angles.
+
+(point-on-ellipse? p ellipse tolerance)
+
+Compute if a point is on an ellipse.
+
+(line-segment->ellipse l)
+
+Place an ellipse around a line segment
+
+(ellipse->points e #!optional (n 360))
+
+Sample ''n'' points on an ellipse.
+
+;;; Resizing
+
+(resize-image w h i)
+
+Resize an image. This is quite slow as it writes the image out and
+calls imagemagick to resize it.
+
+(subsample-pbm pbm)
+
+Subsample a pbm by a factor of 2.
+
+(scale-ppm ppm scale)
+
+Scale a pbm by a factor of 2 or 4.
+
+;;; Connected Components
+
+(connected-component-filter pbm delta threshold)
+
+Compute connected components of a binary image with distance thershold
+''delta'' and size threshold ''threshold''.x
+
+(define-private-structure vertex pixels vertex edges)
+(define-private-structure edge u v)
+(define-private-structure graph vertices edges)
+
+These are defined private for now as they need to be renamed.
+
+(pbm->graph pbm delta)
+(labeling->graph labeling delta)
+
+Convert a binary image to a graph where pixels within ''delta'' of
+each other are connected.
+
+(dereference-vertex u)
+(connected-components g)
+
+Compute the connect components of a graph.
+
+(vertices->pbm vertices height width)
+(graph->pbm g height width)
+
+Convert a graph or list of vertices to a pbm.
+
+;;; Chains
+
+(pbm->chains pbm)
+
+Convert a binary image to a list of chains, pixels that are connected
+to each other.
+
+(chains->pbm chains height width)
+
+Convert a list of chains to a pbm.
+
+(chain-filter pbm threshold)
+
+Filters chains below a certain length.
+
+(break-chain chain l)
+(break-chains chains l)
+
+Break chains below a certain length.
+
+;;; Conjuring
+
+(conjure pbms delta span threshold1 threshold2)
+
+Fill in missing values in pairs of frames.
+
+;;; Distance Transform
+
+(distance-transform pbm)
+(closest-transform-ref closest-transform p)
+
+Compute the Manhattan distance transform for a binary image and
+reference into that distance transform.
+
+(euclidean-1d-dt v)
+(euclidean-2d-dt m)
+(euclidean-1d-dt-vals v)
+(euclidean-2d-dt-vals m)
+
+Compute a generalized squared-euclidean distance transform on the
+given vector or matrix. The ''-vals'' version also returns a map of
+the closest points.
+
+;;; Buffers
+
+(define-structure pnm-buffer buffer width height pixfmt storage type)
+
+A mechanism to store raw image pointers.
+
+(pnm->pixfmt p p4?)
+(pixfmt->stride pixfmt)
+(image-type->pixfmt t p4?)
+(image-type->storage-size t p4?)
+(pnm->image-type p)
+(pnm->storage p)
+(pixfmt->red pixfmt)
+(pixfmt->green pixfmt)
+(pixfmt->blue pixfmt)
+(pnm-buffer-size p p4?)
+(pnm->pnm-buffer! p . p4?)
+(pnm-fill-buffer! p b pixfmt)
+(free-pnm-buffer! p)
+
+Misc raw image buffer operations.
+
+(imlib-image->pnm-buffer! image)
+(imlib-image->ppm image)
+(ppm->imlib-image ppm)
+
+Convert between PPMs and Imlib images. PGMs and PBMs must first be
+converted to PPMs because Imlib only handles RGB images.
+
+(pnm-buffer->pnm b)
+(pnm-buffer->pbm p)
+(pnm-buffer->pgm p)
+(pnm-buffer->ppm p)
+
+Convert a raw image buffer to a scheme image.
+
+(image->pnm-buffer! image)
+
+Convert any image to a raw image buffer.
+
+;;; Misc
+
+(ppm-absolute-difference ppm1 ppm2)
+
+Compute the absolute difference between two color images.
+
+(set-ppm-pixel! ppm x y value)
+
+Set a pixel in a color image to a given value (a 3-vector).
+
+(pnm-pixel? i x y)
+
+Is this a valid position in the given image?
+
+(map-ppm-values ppm f)
+
+Map ''f'' on each component of each pixel in the image.
+
+;; Stacking
+
+(pbm-stack-vertical pbm1 pbm2)
+(pbm-stack-horizontal pbm1 pbm2)
+(ppm-stack-vertical ppm1 ppm2)
+
+Stack pbms.
+
+(ppm-stack-horizontal ppm1 ppm2)
+
+Stack ppms.
+
+;;; Angles
+
+(degrees->radians angle)
+(radians->degrees angle)
+(normalize-rotation rotation)
+(rotation+ x y)
+(rotation- x y)
+(angle-separation x y)
+(mean-angle angles)
+
+Misc operation on angles.
+
+(rotation-matrix-2d theta)
+
+Produce the 2D rotation matrix for the given angle.
+
+;;; Misc
+
+(show i)
+
+Display an image. This invokes feh.
 
 === License
 

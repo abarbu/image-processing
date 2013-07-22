@@ -6,5 +6,5 @@
 
 (setup-shared-extension-module 'image-processing (extension-version "1.0")
   #:inline? #t #:types? #t
-  #:compile-options '(-O3 -d2)
+  #:compile-options '(-O3 -d2 -C -std=gnu99)
   #:install-options '())
