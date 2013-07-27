@@ -1,7 +1,8 @@
 (module image-processing *
 (import chicken scheme extras lolevel)
 (use traversal define-structure scheme2c-compatibility
-     linear-algebra format miscmacros imlib2 files srfi-1)
+     linear-algebra format miscmacros imlib2 files srfi-1
+     data-structures)
 
 ;;; Accessing colors
 
