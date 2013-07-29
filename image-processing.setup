@@ -4,7 +4,7 @@
 
 (verify-extension-name "image-processing")
 
-(setup-shared-extension-module 'image-processing (extension-version "1.0")
+(setup-shared-extension-module 'image-processing (extension-version "1.1")
   #:inline? #t #:types? #t
   #:compile-options '(-O3 -d2 -C -std=gnu99)
   #:install-options '())

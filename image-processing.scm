@@ -2408,7 +2408,6 @@ double *euclidean_1d_dt_vals(double *f, unsigned n) {
   ppm))
 
 (define (imlib-image->pnm-buffer! image)
- ;; FIXME This may leak memory, I'm not sure
  (make-pnm-buffer (image-get-data-for-reading-only (image-clone image))
                   (image-width image)
                   (image-height image)
@@ -2421,12 +2420,12 @@ double *euclidean_1d_dt_vals(double *f, unsigned n) {
 
 (define (ppm->imlib-image ppm)
  (let ((buf (pnm->pnm-buffer! ppm #t)))
-  ;; (let ((i (image-create-using-copied-data (pnm-buffer-width buf)
-  ;;                                          (pnm-buffer-height buf)
-  ;;                                          (pnm-buffer-buffer buf))))
-  ;;  (set-finalizer! i gc-collect-image)
-  ;;  (free-pnm-buffer! buf)
-  ;;  i)
+  (let ((i (image-create-using-copied-data (pnm-buffer-width buf)
+                                           (pnm-buffer-height buf)
+                                           (pnm-buffer-buffer buf))))
+   (set-finalizer! i gc-collect-image)
+   (free-pnm-buffer! buf)
+   i)
   (error "This function is commented pending a patch to the imlib2 egg")))
 
 (define (image->pnm-buffer! image)
